@@ -30,10 +30,12 @@ const topics = ['Kubernetes', 'Containers', 'Security', 'ML Infra', 'Linux', 'Be
         something that seemed cool — I build a small experiment and write up what I found.
       </p>
 
-      <div class="hero-topics">
-        {topics.map((t) => (
-          <span class="topic-pill">{t}</span>
-        ))}
+      <div class="hero-dots">
+        <span class="dot" />
+        <span class="dot dot-md" />
+        <span class="dot dot-lg" />
+        <span class="dot dot-md" />
+        <span class="dot" />
       </div>
     </section>
 
@@ -130,28 +132,30 @@ const topics = ['Kubernetes', 'Containers', 'Security', 'ML Infra', 'Linux', 'Be
     margin: 0 auto 2rem;
   }
 
-  .hero-topics {
+  .hero-dots {
     display: flex;
-    flex-wrap: wrap;
+    align-items: center;
     justify-content: center;
-    gap: 0.4rem;
+    gap: 0.5rem;
   }
 
-  .topic-pill {
-    font-family: var(--font-mono);
-    font-size: 0.68rem;
-    padding: 0.25em 0.7em;
-    border-radius: 999px;
-    background: var(--color-surface-2);
-    border: 1px solid var(--color-line);
-    color: var(--color-dim);
-    letter-spacing: 0.03em;
-    transition: color 0.15s, border-color 0.15s;
+  .dot {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: var(--color-line-2);
   }
 
-  .topic-pill:hover {
-    color: var(--color-accent);
-    border-color: rgba(29, 158, 117, 0.3);
+  .dot-md {
+    width: 7px;
+    height: 7px;
+    background: var(--color-dim);
+  }
+
+  .dot-lg {
+    width: 9px;
+    height: 9px;
+    background: var(--color-accent);
   }
 
   /* ── Divider ───────────────────────────── */

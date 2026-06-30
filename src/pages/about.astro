@@ -5,23 +5,28 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 <BaseLayout title="About — Nivi Ishay" description="About Nivi Ishay">
   <div class="about-page">
 
-    <header class="about-header">
-      <a href="/" class="back-link">← All experiments</a>
-      <h1 class="about-title">Niv Ishay</h1>
-      <p class="about-role">Software Engineer</p>
-    </header>
+    <a href="/" class="back-link">← All experiments</a>
 
-    <section class="about-body">
-      <p>
-        This is my learning log. Every day I pick something I'm curious about,
-        build a small project around it, and write up what happened — including
-        the parts that didn't work.
-      </p>
-      <p>
-        I'm not here to show off what I already know. I'm here because I genuinely
-        enjoy the process of not knowing something, then figuring it out.
-      </p>
-    </section>
+    <div class="about-hero">
+      <div class="about-portrait">
+        <img src="/niv.jpeg" alt="Niv Ishay" class="portrait-img" />
+      </div>
+      <div class="about-intro">
+        <h1 class="about-title">Niv Ishay</h1>
+        <p class="about-role">Software Engineer</p>
+        <section class="about-body">
+          <p>
+            This is my learning log. Every day I pick something I'm curious about,
+            build a small project around it, and write up what happened — including
+            the parts that didn't work.
+          </p>
+          <p>
+            I'm not here to show off what I already know. I'm here because I genuinely
+            enjoy the process of not knowing something, then figuring it out.
+          </p>
+        </section>
+      </div>
+    </div>
 
     <section class="about-links">
       <span class="links-label">Find me</span>
@@ -55,7 +60,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 
 <style>
   .about-page {
-    max-width: 720px;
+    max-width: 820px;
     margin: 0 auto;
     padding: 3rem 1.5rem 5rem;
   }
@@ -66,17 +71,46 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     font-size: 0.78rem;
     color: var(--color-dim);
     text-decoration: none;
-    margin-bottom: 2rem;
+    margin-bottom: 2.5rem;
     transition: color 0.15s;
   }
 
   .back-link:hover { color: var(--color-accent); }
 
+  /* ── Hero layout ───────────────────────── */
+  .about-hero {
+    display: grid;
+    grid-template-columns: 260px 1fr;
+    gap: 3.5rem;
+    align-items: start;
+    margin-bottom: 3rem;
+  }
+
+  .about-portrait {
+    position: sticky;
+    top: 2rem;
+  }
+
+  .portrait-img {
+    width: 100%;
+    aspect-ratio: 3 / 4;
+    object-fit: cover;
+    object-position: center top;
+    border-radius: 4px;
+    display: block;
+    filter: grayscale(8%);
+  }
+
+  .about-intro {
+    padding-top: 0.25rem;
+  }
+
   .about-title {
-    font-size: 2rem;
-    font-weight: 700;
-    color: #f4f4f5;
-    letter-spacing: -0.03em;
+    font-family: var(--font-serif);
+    font-size: 2.5rem;
+    font-weight: 600;
+    color: #1a1a18;
+    letter-spacing: -0.02em;
     margin-bottom: 0.25rem;
   }
 
@@ -84,13 +118,13 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     font-family: var(--font-mono);
     font-size: 0.8rem;
     color: var(--color-accent);
-    margin-bottom: 2.5rem;
+    margin-bottom: 2rem;
   }
 
   .about-body {
     border-top: 1px solid var(--color-line);
-    padding-top: 2rem;
-    margin-bottom: 3rem;
+    padding-top: 1.5rem;
+    margin-bottom: 2.5rem;
     display: flex;
     flex-direction: column;
     gap: 1.25rem;
@@ -100,6 +134,18 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     font-size: 0.975rem;
     color: var(--color-soft);
     line-height: 1.8;
+  }
+
+  @media (max-width: 640px) {
+    .about-hero {
+      grid-template-columns: 1fr;
+      gap: 2rem;
+    }
+
+    .about-portrait {
+      position: static;
+      max-width: 240px;
+    }
   }
 
   .links-label {
@@ -145,7 +191,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
   .link-name {
     font-size: 0.875rem;
     font-weight: 500;
-    color: #f4f4f5;
+    color: #1a1a18;
     margin-bottom: 0.1rem;
   }
 
