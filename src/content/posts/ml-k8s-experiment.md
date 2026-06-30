@@ -3,7 +3,7 @@ title: "Can you deploy an ML model that scales automatically under load?"
 description: "I had zero Kubernetes experience. I had an NVIDIA interview coming up. I built a real ML inference service to find out."
 date: 2026-06-01
 tags: ["kubernetes", "docker", "ml", "python"]
-github: "https://github.com/YOUR_GITHUB/ml-interface-k8s"
+github: "https://github.com/nivishay/ml-interface-k8s"
 drivenBy: "I had a technical interview at NVIDIA coming up. They run ML infrastructure on Kubernetes at scale — GPU clusters, distributed training, inference serving. I had zero K8s experience. I decided the only way to actually understand it was to build something real, not just read docs."
 keyInsight: "Kubernetes was silently killing my pod in an infinite restart loop — because DistilBERT takes 40 seconds to load and the liveness probe didn't know that."
 ---
