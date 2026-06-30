@@ -1,25 +1,31 @@
 ---
-title: "Can you deploy an ML model that scales automatically under load?"
-description: "I wanted to understand how Kubernetes actually works, so instead of just reading documentation, I built a full ML inference service to see it in action."
+title: "Deploy ML model that scales automatically under load."
+description: "Came across a job at NVIDIA working on ML performance in the cloud — using Kubernetes. Never actually used it, so I built a small experiment to find out what happens when you try."
 date: 2026-06-01
 tags: ["kubernetes", "docker", "ml", "python"]
 github: "https://github.com/nivishay/learning-and-experiments/tree/main/ml-interface-using-k8"
-drivenBy: "I wanted to understand how Kubernetes actually works, so instead of just reading documentation, I built a full-scale ML inference service to see it in action."
+drivenBy: "Came across a job at NVIDIA working on ML performance in the cloud — using Kubernetes. Never actually used it, so I built a small experiment to find out what happens when you try."
 keyInsight: "Kubernetes was silently killing my pod in an infinite restart loop — because DistilBERT takes 40 seconds to load and the liveness probe didn't know that."
 ---
 
-## The Tech Stack
+## The Stack
 
 - **Kubernetes (Minikube)** — the orchestrator managing the service
-- **FastAPI** — a lightweight, high-performance web framework for the API
-- **DistilBERT** — a compact, fast version of BERT, perfect for sentiment analysis without excessive resource overhead
-- **HPA (Horizontal Pod Autoscaler)** — automatically scales the number of running pods based on CPU load
+- **FastAPI** — lightweight Python web framework for the API
+- **DistilBERT** — a compact BERT model for sentiment analysis
+- **HPA (Horizontal Pod Autoscaler)** — automatically scales pods based on CPU load
 
-## 1. Liveness vs. Readiness Probes
+## Getting started
 
-DistilBERT takes about 40 seconds to load into memory. Kubernetes' default liveness check was too fast — it would kill the pod because it didn't respond in 10 seconds, causing an infinite restart loop.
+I started with a YouTube video and a podcast that broke down the basics — what pods are, how the scheduler works, what it actually means to "orchestrate" containers. It clicked in theory. So I set up Minikube, wrapped DistilBERT in a FastAPI service, and tried to get it running inside a cluster.
 
-The fix: I learned to use readiness probes to tell Kubernetes, "The pod is alive, but don't send traffic until the model is fully loaded." Configuring `initialDelaySeconds` finally stopped the restart loops.
+## Problem 1 — The pod kept dying
+
+The first thing I noticed: my pod would start, and then Kubernetes would kill it. Over and over. I had no idea why.
+
+Turned out DistilBERT takes about 40 seconds to load into memory. Kubernetes' liveness probe was pinging after 10 seconds, getting no response, and deciding the pod was dead — infinite restart loop.
+
+The fix was separating the *liveness* probe (is the process alive?) from the *readiness* probe (is it ready to serve traffic?). Setting `initialDelaySeconds` to give the model time to load fixed it immediately.
 
 ```yaml
 livenessProbe:
@@ -36,18 +42,18 @@ readinessProbe:
   periodSeconds: 10
 ```
 
-## 2. Pre-caching the Model
+## Problem 2 — Scaling was slow
 
-At first, my container tried to download the model from HuggingFace every time it started. This meant that whenever the system tried to scale up, new pods would just sit there waiting for a network download.
+Once I added HPA to scale under load, new pods were taking forever to become ready. The model was downloading from HuggingFace on every single startup.
 
-The fix: I used a multi-stage Dockerfile to "bake" the model directly into the image. The image is larger (~1.5 GB), but the pods start up ready to serve requests instantly, without needing a stable internet connection at runtime.
+The fix was baking the model directly into the Docker image using a multi-stage build. The image got bigger (~1.5 GB), but pods went from "waiting on a network download" to "ready to serve" almost instantly.
 
 ```dockerfile
 # Stage 1: install dependencies
 FROM python:3.11-slim AS builder
 RUN pip install --prefix=/install -r requirements.txt
 
-# Stage 2: download and cache the model
+# Stage 2: download and cache the model at build time
 FROM python:3.11-slim AS model-downloader
 COPY --from=builder /install /usr/local
 ENV HF_HOME=/model-cache
@@ -62,24 +68,24 @@ COPY main.py .
 CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
 ```
 
-## 3. Understanding HPA and Resources
+## Problem 3 — HPA wasn't triggering
 
-I mistakenly thought the autoscaler (HPA) looked at my "limit" — the max CPU a pod can use. It turns out it only cares about the "request" — the CPU I reserved.
+I thought the autoscaler watched CPU *limits* (the ceiling). It doesn't — it watches CPU *requests* (what you reserved). My limits were set too high, so the math never triggered a scale-up event.
 
-The lesson: I set my requests carefully to create a "Burstable" setup. This ensures that when CPU usage spikes, the autoscaler actually triggers as intended instead of being throttled by the hard limits.
+Once I set requests to a realistic number, HPA started firing exactly as expected.
 
 ```yaml
 resources:
   requests:
-    cpu: "250m"    # HPA watches this — 60% of 250m = triggers at 150m
+    cpu: "250m"    # HPA watches this — 60% of 250m triggers at 150m
     memory: "512Mi"
   limits:
     cpu: "1000m"   # hard ceiling, does not affect HPA math
     memory: "1Gi"
 ```
 
-## Live: HPA scaling in action
+## Seeing it work
 
-Below is a split-screen of `kubectl get pods --watch` (left) and `kubectl get hpa --watch` (right) — you can see the pods cycling through `ContainerCreating → Running → Terminating` as the HPA reacts to CPU load, scaling from 2 up to 6 replicas and back down.
+Here's a split-screen of `kubectl get pods --watch` and `kubectl get hpa --watch` — pods cycling through `ContainerCreating → Running → Terminating` as HPA reacts to CPU load, scaling from 2 up to 6 replicas and back down.
 
 ![kubectl output showing HPA scaling pods in real time](/screenshots/ml-k8s-github.png)
