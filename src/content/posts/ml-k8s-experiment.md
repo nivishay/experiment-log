@@ -1,40 +1,32 @@
 ---
 title: "Can you deploy an ML model that scales automatically under load?"
-description: "I had zero Kubernetes experience. I had an NVIDIA interview coming up. I built a real ML inference service to find out."
+description: "I wanted to understand how Kubernetes actually works, so instead of just reading documentation, I built a full ML inference service to see it in action."
 date: 2026-06-01
 tags: ["kubernetes", "docker", "ml", "python"]
-github: "https://github.com/nivishay/ml-interface-k8s"
-drivenBy: "I had a technical interview at NVIDIA coming up. They run ML infrastructure on Kubernetes at scale — GPU clusters, distributed training, inference serving. I had zero K8s experience. I decided the only way to actually understand it was to build something real, not just read docs."
+github: "https://github.com/nivishay/learning-and-experiments/tree/main/ml-interface-using-k8"
+drivenBy: "I wanted to understand how Kubernetes actually works, so instead of just reading documentation, I built a full-scale ML inference service to see it in action."
 keyInsight: "Kubernetes was silently killing my pod in an infinite restart loop — because DistilBERT takes 40 seconds to load and the liveness probe didn't know that."
 ---
 
-## What I expected
+## The Tech Stack
 
-Kubernetes sounded like "Docker, but with autoscaling." I figured I'd wrap my model in a container, write some YAML, and it would scale up cleanly when traffic hit. Straightforward.
+- **Kubernetes (Minikube)** — the orchestrator managing the service
+- **FastAPI** — a lightweight, high-performance web framework for the API
+- **DistilBERT** — a compact, fast version of BERT, perfect for sentiment analysis without excessive resource overhead
+- **HPA (Horizontal Pod Autoscaler)** — automatically scales the number of running pods based on CPU load
 
-It wasn't.
+## 1. Liveness vs. Readiness Probes
 
-## What I actually found
+DistilBERT takes about 40 seconds to load into memory. Kubernetes' default liveness check was too fast — it would kill the pod because it didn't respond in 10 seconds, causing an infinite restart loop.
 
-Three things surprised me — and each one revealed something real about how Kubernetes works.
-
-### 1. Kubernetes will kill your ML pod before it's ready
-
-DistilBERT takes ~40 seconds to load into memory. Kubernetes' liveness probe was hitting `/healthz` at second 10, getting no response, and restarting the pod. Infinite restart loop.
-
-The fix was `initialDelaySeconds: 60` — but understanding *why* meant learning the difference between two probe types:
-
-- **Liveness probe** — is the pod still alive? Kill and restart it if not.
-- **Readiness probe** — is the pod ready to receive traffic? Stop routing to it if not.
-
-They're separate for a reason. A pod can be alive but not ready. For an ML service, that window (model loading) can be 30–60 seconds. If you don't configure `initialDelaySeconds` correctly, Kubernetes destroys the pod before it's ever usable.
+The fix: I learned to use readiness probes to tell Kubernetes, "The pod is alive, but don't send traffic until the model is fully loaded." Configuring `initialDelaySeconds` finally stopped the restart loops.
 
 ```yaml
 livenessProbe:
   httpGet:
     path: /healthz
     port: 8000
-  initialDelaySeconds: 60   # give DistilBERT time to load
+  initialDelaySeconds: 60
   periodSeconds: 15
 readinessProbe:
   httpGet:
@@ -44,68 +36,50 @@ readinessProbe:
   periodSeconds: 10
 ```
 
-### 2. Baking the model into the image matters
+## 2. Pre-caching the Model
 
-My first Dockerfile downloaded DistilBERT from HuggingFace at container startup. Every new pod took 60+ seconds to become ready — network call included. Under load, when the HPA tries to scale up, every new pod is waiting on a download before it can serve requests.
+At first, my container tried to download the model from HuggingFace every time it started. This meant that whenever the system tried to scale up, new pods would just sit there waiting for a network download.
 
-The fix: a 3-stage Dockerfile.
+The fix: I used a multi-stage Dockerfile to "bake" the model directly into the image. The image is larger (~1.5 GB), but the pods start up ready to serve requests instantly, without needing a stable internet connection at runtime.
 
 ```dockerfile
 # Stage 1: install dependencies
 FROM python:3.11-slim AS builder
-COPY requirements.txt .
 RUN pip install --prefix=/install -r requirements.txt
 
-# Stage 2: download model (cached independently from code changes)
+# Stage 2: download and cache the model
 FROM python:3.11-slim AS model-downloader
 COPY --from=builder /install /usr/local
 ENV HF_HOME=/model-cache
 RUN python -c "from transformers import pipeline; pipeline('sentiment-analysis', model='distilbert/distilbert-base-uncased-finetuned-sst-2-english')"
 
-# Stage 3: runtime — bake everything in
+# Stage 3: runtime — model is already baked in
 FROM python:3.11-slim
 COPY --from=builder /install /usr/local
 COPY --from=model-downloader /model-cache /model-cache
 ENV HF_HOME=/model-cache
 COPY main.py .
-RUN useradd --create-home appuser && chown -R appuser:appuser /app /model-cache
-USER appuser
 CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
 ```
 
-The model is baked in. Pods start in ~40s (just load time, no network). The image is larger (~1.5 GB), but for an inference service the startup speed tradeoff is worth it.
+## 3. Understanding HPA and Resources
 
-### 3. CPU requests and limits are not the same thing — and it matters for HPA
+I mistakenly thought the autoscaler (HPA) looked at my "limit" — the max CPU a pod can use. It turns out it only cares about the "request" — the CPU I reserved.
 
-I set `requests: 250m` and `limits: 1000m`. I thought I was being clever by giving the pod room to burst. But I didn't fully understand what each field does.
-
-- **`requests`** — what the scheduler *guarantees*. Kubernetes uses this to decide which node can fit the pod.
-- **`limits`** — the hard ceiling. The container gets throttled or OOM-killed if it exceeds this.
-- Setting them differently = **Burstable QoS class** — the pod can use up to 1 CPU but may get throttled under node pressure.
-
-More importantly: **HPA uses the `requests` value for its math**, not the actual usage ceiling. With `requests: 250m` and a 60% CPU target, HPA scales at 150m of actual CPU usage. That's very conservative. A single inference request might spike to 300–400m briefly, but by the time HPA notices (30-second scrape interval + stabilization window), the spike has passed.
+The lesson: I set my requests carefully to create a "Burstable" setup. This ensures that when CPU usage spikes, the autoscaler actually triggers as intended instead of being throttled by the hard limits.
 
 ```yaml
-metrics:
-  - type: Resource
-    resource:
-      name: cpu
-      target:
-        type: Utilization
-        averageUtilization: 60   # 60% of requests (250m) = 150m trigger
+resources:
+  requests:
+    cpu: "250m"    # HPA watches this — 60% of 250m = triggers at 150m
+    memory: "512Mi"
+  limits:
+    cpu: "1000m"   # hard ceiling, does not affect HPA math
+    memory: "1Gi"
 ```
 
-## What I built
+## Live: HPA scaling in action
 
-A FastAPI sentiment-analysis service running DistilBERT, deployed on Minikube with:
+Below is a split-screen of `kubectl get pods --watch` (left) and `kubectl get hpa --watch` (right) — you can see the pods cycling through `ContainerCreating → Running → Terminating` as the HPA reacts to CPU load, scaling from 2 up to 6 replicas and back down.
 
-- **Deployment** — 2 replicas, liveness + readiness probes, Burstable QoS (requests: 250m/512Mi, limits: 1000m/1Gi)
-- **LoadBalancer Service** — port 80 → container port 8000
-- **HPA** — 2–6 replicas, scales at 60% average CPU utilization
-- **3-stage Dockerfile** — bakes the model in, runs as non-root user (`appuser`)
-
-The inference endpoint is simple: POST `/predict` with `{"text": "..."}`, get back a sentiment label and confidence score.
-
-## What I'd do next
-
-Load test with `k6` or `locust` and actually watch the HPA fire past 2 replicas. I configured it but never pushed it hard enough to trigger scaling. I'd also want to measure the actual cold-start latency distribution — my 40s estimate is a rough average, not a p95.
+![kubectl output showing HPA scaling pods in real time](/screenshots/ml-k8s-github.png)
