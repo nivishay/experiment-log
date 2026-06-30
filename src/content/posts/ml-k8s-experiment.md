@@ -4,6 +4,7 @@ description: "Came across a job at NVIDIA working on ML performance in the cloud
 date: 2026-06-01
 tags: ["kubernetes", "docker", "ml", "python"]
 github: "https://github.com/nivishay/learning-and-experiments/tree/main/ml-interface-using-k8"
+cover: "/covers/kubernetes.svg"
 drivenBy: "Came across a job at NVIDIA working on ML performance in the cloud — using Kubernetes. Never actually used it, so I built a small experiment to find out what happens when you try."
 keyInsight: "Kubernetes was silently killing my pod in an infinite restart loop — because DistilBERT takes 40 seconds to load and the liveness probe didn't know that."
 ---

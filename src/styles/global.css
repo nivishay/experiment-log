@@ -1,16 +1,17 @@
 @import "tailwindcss";
 
 @theme {
-  --color-canvas: #06060a;
-  --color-surface: #0d0d12;
-  --color-surface-2: #13131a;
-  --color-line: #1c1c26;
-  --color-line-2: #24242f;
-  --color-dim: #52525b;
-  --color-soft: #a1a1aa;
-  --color-accent: #00d4ff;
-  --color-accent-soft: rgba(0, 212, 255, 0.12);
+  --color-canvas: #fafaf8;
+  --color-surface: #ffffff;
+  --color-surface-2: #f4f4f0;
+  --color-line: #e8e8e4;
+  --color-line-2: #d4d4ce;
+  --color-dim: #9b9b94;
+  --color-soft: #5a5a54;
+  --color-accent: #1D9E75;
+  --color-accent-soft: rgba(29, 158, 117, 0.08);
   --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-serif: 'Playfair Display', Georgia, serif;
   --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
 }
 
@@ -20,7 +21,7 @@ html { scroll-behavior: smooth; }
 
 body {
   background-color: var(--color-canvas);
-  color: #f4f4f5;
+  color: #1a1a18;
   font-family: var(--font-sans);
   font-size: 16px;
   line-height: 1.7;
@@ -34,16 +35,15 @@ body {
   color: var(--color-accent);
 }
 
-/* Prose — markdown content inside posts */
 .prose {
-  color: #d4d4d8;
+  color: #3a3a34;
   line-height: 1.8;
 }
 
 .prose h2 {
-  font-size: 1.125rem;
+  font-size: 1.1rem;
   font-weight: 600;
-  color: #f4f4f5;
+  color: #1a1a18;
   margin-top: 2.5rem;
   margin-bottom: 0.875rem;
   padding-top: 1.75rem;
@@ -54,14 +54,12 @@ body {
 .prose h3 {
   font-size: 1rem;
   font-weight: 600;
-  color: #e4e4e7;
+  color: #2a2a24;
   margin-top: 1.75rem;
   margin-bottom: 0.5rem;
 }
 
-.prose p {
-  margin-bottom: 1.25rem;
-}
+.prose p { margin-bottom: 1.25rem; }
 
 .prose ul {
   list-style: none;
@@ -88,24 +86,22 @@ body {
   margin-bottom: 1.25rem;
 }
 
-.prose ol li {
-  margin-bottom: 0.5rem;
-}
+.prose ol li { margin-bottom: 0.5rem; }
 
 .prose code {
   font-family: var(--font-mono);
   font-size: 0.82em;
   background: var(--color-surface-2);
-  border: 1px solid var(--color-line-2);
+  border: 1px solid var(--color-line);
   border-radius: 4px;
   padding: 0.1em 0.4em;
   color: var(--color-accent);
 }
 
 .prose pre {
-  background: var(--color-surface);
+  background: #0f0f0d;
   border: 1px solid var(--color-line);
-  border-radius: 8px;
+  border-radius: 10px;
   padding: 1.25rem 1.5rem;
   overflow-x: auto;
   margin: 1.5rem 0;
@@ -130,25 +126,20 @@ body {
   margin: 1.75rem 0;
 }
 
-.prose strong {
-  color: #f4f4f5;
-  font-weight: 600;
-}
+.prose strong { color: #1a1a18; font-weight: 600; }
 
 .prose a {
   color: var(--color-accent);
   text-decoration: none;
-  border-bottom: 1px solid rgba(0, 212, 255, 0.3);
+  border-bottom: 1px solid rgba(29, 158, 117, 0.3);
   transition: border-color 0.15s;
 }
 
-.prose a:hover {
-  border-color: var(--color-accent);
-}
+.prose a:hover { border-color: var(--color-accent); }
 
 .prose img {
   width: 100%;
-  border-radius: 8px;
+  border-radius: 10px;
   border: 1px solid var(--color-line);
   margin: 1.5rem 0;
 }
@@ -170,7 +161,7 @@ body {
   text-align: left;
   padding: 0.5rem 1rem;
   border-bottom: 1px solid var(--color-line-2);
-  color: #e4e4e7;
+  color: #2a2a24;
   font-weight: 600;
   font-family: var(--font-mono);
   font-size: 0.75rem;
@@ -181,9 +172,7 @@ body {
 .prose td {
   padding: 0.625rem 1rem;
   border-bottom: 1px solid var(--color-line);
-  color: #d4d4d8;
+  color: #3a3a34;
 }
 
-.prose tr:last-child td {
-  border-bottom: none;
-}
+.prose tr:last-child td { border-bottom: none; }

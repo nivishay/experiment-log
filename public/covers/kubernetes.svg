@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 460">
+  <!-- Hexagon background -->
+  <polygon points="200,10 380,110 380,310 200,410 20,310 20,110" fill="#326CE5"/>
+  <!-- Outer ring -->
+  <circle cx="200" cy="210" r="110" fill="none" stroke="white" stroke-width="18"/>
+  <!-- Center circle -->
+  <circle cx="200" cy="210" r="32" fill="white"/>
+  <!-- 7 spokes -->
+  <line x1="200" y1="100" x2="200" y2="178" stroke="white" stroke-width="18" stroke-linecap="round"/>
+  <line x1="200" y1="242" x2="200" y2="320" stroke="white" stroke-width="18" stroke-linecap="round"/>
+  <line x1="103" y1="147" x2="168" y2="185" stroke="white" stroke-width="18" stroke-linecap="round"/>
+  <line x1="232" y1="235" x2="297" y2="273" stroke="white" stroke-width="18" stroke-linecap="round"/>
+  <line x1="297" y1="147" x2="232" y2="185" stroke="white" stroke-width="18" stroke-linecap="round"/>
+  <line x1="168" y1="235" x2="103" y2="273" stroke="white" stroke-width="18" stroke-linecap="round"/>
+  <line x1="97" y1="210" x2="168" y2="210" stroke="white" stroke-width="18" stroke-linecap="round"/>
+  <line x1="232" y1="210" x2="303" y2="210" stroke="white" stroke-width="18" stroke-linecap="round"/>
+  <!-- Kubernetes text -->
+  <text x="200" y="445" text-anchor="middle" font-family="Arial, sans-serif" font-size="42" font-weight="bold" fill="#326CE5">kubernetes</text>
+</svg>
