@@ -3,7 +3,7 @@ title: "I spent a week learning how to actually build with AI. Here's what click
 description: "Watched a series on building full-stack projects from scratch with Claude — and ended up learning less about the tech and more about how to think with an AI agent."
 date: 2026-06-30
 tags: ["ai", "claude", "workflow", "tdd"]
-cover: "/covers/kubernetes.svg"
+cover: "/covers/grill-me.jpg"
 drivenBy: "Wanted to level up how I work with AI — not just prompt it, but actually build with it."
 keyInsight: "The skill isn't writing code with AI. It's knowing how to question it until the project makes sense."
 ---
