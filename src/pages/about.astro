@@ -1,0 +1,163 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+
+<BaseLayout title="About — Nivi Ishay" description="About Nivi Ishay">
+  <div class="about-page">
+
+    <header class="about-header">
+      <a href="/" class="back-link">← All experiments</a>
+      <h1 class="about-title">Nivi Ishay</h1>
+      <p class="about-role">Software Engineer</p>
+    </header>
+
+    <section class="about-body">
+      <p>
+        I'm a software engineering student with a focus on infrastructure,
+        cloud-native systems, and security. This site is where I publish
+        experiments as I learn — benchmarks, proofs-of-concept, and honest
+        write-ups of what broke and why.
+      </p>
+      <p>
+        Currently exploring Kubernetes, container isolation, and ML infrastructure.
+        Preparing for technical interviews at companies like NVIDIA that run
+        large-scale distributed systems.
+      </p>
+      <p>
+        I believe the best way to learn something deeply is to build it, break it,
+        and write about what you found.
+      </p>
+    </section>
+
+    <section class="about-links">
+      <span class="links-label">Find me</span>
+      <div class="links-grid">
+        <a href="https://github.com/YOUR_GITHUB" target="_blank" rel="noopener noreferrer" class="link-card">
+          <span class="link-icon">⌥</span>
+          <div>
+            <div class="link-name">GitHub</div>
+            <div class="link-sub">github.com/YOUR_GITHUB</div>
+          </div>
+        </a>
+        <a href="https://linkedin.com/in/YOUR_LINKEDIN" target="_blank" rel="noopener noreferrer" class="link-card">
+          <span class="link-icon">◈</span>
+          <div>
+            <div class="link-name">LinkedIn</div>
+            <div class="link-sub">linkedin.com/in/YOUR_LINKEDIN</div>
+          </div>
+        </a>
+        <a href="mailto:nivi.ishay@gmail.com" class="link-card">
+          <span class="link-icon">✉</span>
+          <div>
+            <div class="link-name">Email</div>
+            <div class="link-sub">nivi.ishay@gmail.com</div>
+          </div>
+        </a>
+      </div>
+    </section>
+
+  </div>
+</BaseLayout>
+
+<style>
+  .about-page {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 3rem 1.5rem 5rem;
+  }
+
+  .back-link {
+    display: inline-block;
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    color: var(--color-dim);
+    text-decoration: none;
+    margin-bottom: 2rem;
+    transition: color 0.15s;
+  }
+
+  .back-link:hover { color: var(--color-accent); }
+
+  .about-title {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #f4f4f5;
+    letter-spacing: -0.03em;
+    margin-bottom: 0.25rem;
+  }
+
+  .about-role {
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    color: var(--color-accent);
+    margin-bottom: 2.5rem;
+  }
+
+  .about-body {
+    border-top: 1px solid var(--color-line);
+    padding-top: 2rem;
+    margin-bottom: 3rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+  }
+
+  .about-body p {
+    font-size: 0.975rem;
+    color: var(--color-soft);
+    line-height: 1.8;
+  }
+
+  .links-label {
+    display: block;
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    color: var(--color-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 1rem;
+  }
+
+  .links-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .link-card {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem 1.25rem;
+    border: 1px solid var(--color-line);
+    border-radius: 8px;
+    text-decoration: none;
+    background: var(--color-surface);
+    transition: border-color 0.15s, background-color 0.15s;
+  }
+
+  .link-card:hover {
+    border-color: var(--color-line-2);
+    background-color: var(--color-surface-2);
+  }
+
+  .link-icon {
+    font-size: 1.1rem;
+    color: var(--color-dim);
+    width: 24px;
+    text-align: center;
+  }
+
+  .link-name {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #f4f4f5;
+    margin-bottom: 0.1rem;
+  }
+
+  .link-sub {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    color: var(--color-dim);
+  }
+</style>
