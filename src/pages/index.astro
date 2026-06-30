@@ -7,126 +7,198 @@ const allPosts = await getCollection('posts');
 const posts = allPosts.sort(
   (a, b) => b.data.date.valueOf() - a.data.date.valueOf()
 );
+
+const topics = ['Kubernetes', 'Containers', 'Security', 'ML Infra', 'Linux', 'Benchmarking'];
 ---
 
 <BaseLayout title="Nivi Ishay — Experiment Log">
   <div class="page">
 
+    <!-- Hero -->
     <section class="hero">
-      <div class="hero-glow" />
-      <p class="hero-eyebrow">Engineering experiments</p>
-      <h1 class="hero-title">Nivi Ishay</h1>
-      <p class="hero-sub">
-        Software engineer. Learning in public.<br />
-        Kubernetes · containers · security · ML infra.
-      </p>
-    </section>
+      <div class="hero-orb" />
 
-    <section class="posts-section">
-      <div class="section-header">
-        <span class="section-label">All experiments</span>
-        <span class="section-count">{posts.length} post{posts.length !== 1 ? 's' : ''}</span>
+      <div class="hero-badge">
+        <span class="badge-dot" />
+        A new experiment every few days
       </div>
 
-      {posts.length === 0 ? (
-        <p class="empty">First experiment coming soon.</p>
-      ) : (
-        <div class="posts-list">
-          {posts.map((post) => (
-            <PostCard
-              title={post.data.title}
-              description={post.data.description}
-              date={post.data.date}
-              tags={post.data.tags}
-              slug={post.id}
-            />
-          ))}
-        </div>
-      )}
+      <h1 class="hero-name">Nivi Ishay</h1>
+
+      <p class="hero-desc">
+        Software engineer. I explore Kubernetes, containers, security, and ML
+        infrastructure — building things from scratch to understand them deeply.
+      </p>
+
+      <div class="hero-topics">
+        {topics.map((t) => (
+          <span class="topic-pill">{t}</span>
+        ))}
+      </div>
     </section>
+
+    <!-- Divider -->
+    <div class="section-divider">
+      <span class="divider-label">Experiments</span>
+      <div class="divider-line" />
+      <span class="divider-count">{posts.length}</span>
+    </div>
+
+    <!-- Posts grid -->
+    {posts.length === 0 ? (
+      <p class="empty">First experiment coming soon.</p>
+    ) : (
+      <div class="posts-grid">
+        {posts.map((post, i) => (
+          <PostCard
+            title={post.data.title}
+            description={post.data.description}
+            date={post.data.date}
+            tags={post.data.tags}
+            slug={post.id}
+            index={i + 1}
+            keyInsight={post.data.keyInsight}
+          />
+        ))}
+      </div>
+    )}
 
   </div>
 </BaseLayout>
 
 <style>
   .page {
-    max-width: 720px;
+    max-width: 760px;
     margin: 0 auto;
     padding: 0 1.5rem;
   }
 
-  /* Hero */
+  /* ── Hero ──────────────────────────────── */
   .hero {
     position: relative;
-    padding: 5rem 0 3.5rem;
-    overflow: hidden;
+    padding: 5.5rem 0 4rem;
+    text-align: center;
   }
 
-  .hero-glow {
+  .hero-orb {
     position: absolute;
-    top: -60px;
+    top: 0;
     left: 50%;
     transform: translateX(-50%);
-    width: 600px;
-    height: 300px;
-    background: radial-gradient(ellipse at center, rgba(0, 212, 255, 0.07) 0%, transparent 70%);
+    width: 700px;
+    height: 400px;
+    background: radial-gradient(ellipse at 50% 20%, rgba(0, 212, 255, 0.09) 0%, transparent 65%);
     pointer-events: none;
   }
 
-  .hero-eyebrow {
+  .hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
     font-family: var(--font-mono);
     font-size: 0.72rem;
-    color: var(--color-accent);
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    margin-bottom: 1rem;
-  }
-
-  .hero-title {
-    font-size: 2.75rem;
-    font-weight: 700;
-    color: #f4f4f5;
-    letter-spacing: -0.04em;
-    line-height: 1;
-    margin-bottom: 1rem;
-  }
-
-  .hero-sub {
-    font-size: 1rem;
     color: var(--color-soft);
-    line-height: 1.7;
+    background: var(--color-surface);
+    border: 1px solid var(--color-line-2);
+    border-radius: 999px;
+    padding: 0.35rem 0.875rem;
+    margin-bottom: 1.75rem;
+    letter-spacing: 0.02em;
   }
 
-  /* Posts */
-  .posts-section {
-    padding-bottom: 2rem;
+  .badge-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--color-accent);
+    box-shadow: 0 0 6px var(--color-accent);
+    animation: pulse 2.5s ease-in-out infinite;
   }
 
-  .section-header {
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+  }
+
+  .hero-name {
+    font-size: 3.5rem;
+    font-weight: 700;
+    letter-spacing: -0.045em;
+    line-height: 1;
+    margin-bottom: 1.25rem;
+    background: linear-gradient(135deg, #ffffff 0%, #a1a1aa 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .hero-desc {
+    font-size: 1.05rem;
+    color: var(--color-soft);
+    line-height: 1.75;
+    max-width: 520px;
+    margin: 0 auto 2rem;
+  }
+
+  .hero-topics {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.5rem;
+  }
+
+  .topic-pill {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    padding: 0.3em 0.75em;
+    border-radius: 999px;
+    background: var(--color-surface-2);
+    border: 1px solid var(--color-line);
+    color: var(--color-dim);
+    letter-spacing: 0.03em;
+    transition: color 0.15s, border-color 0.15s;
+  }
+
+  .topic-pill:hover {
+    color: var(--color-accent);
+    border-color: rgba(0, 212, 255, 0.3);
+  }
+
+  /* ── Divider ───────────────────────────── */
+  .section-divider {
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    margin-bottom: 0;
-    padding-bottom: 0.75rem;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
   }
 
-  .section-label {
+  .divider-label {
     font-family: var(--font-mono);
-    font-size: 0.72rem;
+    font-size: 0.7rem;
     color: var(--color-dim);
     text-transform: uppercase;
-    letter-spacing: 0.08em;
+    letter-spacing: 0.1em;
+    white-space: nowrap;
   }
 
-  .section-count {
+  .divider-line {
+    flex: 1;
+    height: 1px;
+    background: var(--color-line);
+  }
+
+  .divider-count {
     font-family: var(--font-mono);
-    font-size: 0.72rem;
-    color: var(--color-dim);
+    font-size: 0.7rem;
+    color: var(--color-line-2);
   }
 
-  .posts-list {
-    display: flex;
-    flex-direction: column;
+  /* ── Grid ──────────────────────────────── */
+  .posts-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1rem;
+    padding-bottom: 2rem;
   }
 
   .empty {
@@ -134,10 +206,11 @@ const posts = allPosts.sort(
     font-size: 0.85rem;
     color: var(--color-dim);
     padding: 2rem 0;
+    text-align: center;
   }
 
   @media (max-width: 640px) {
-    .hero-title { font-size: 2rem; }
-    .hero { padding-top: 3rem; }
+    .hero-name { font-size: 2.4rem; }
+    .hero { padding-top: 3.5rem; }
   }
 </style>
